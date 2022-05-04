@@ -1,41 +1,70 @@
-# More examples of Codefresh YAML can be found at
-# https://codefresh.io/docs/docs/yaml-examples/examples/
 
 version: "1.0"
-# Stages can help you organize your steps in stages
+fail_fast: true
 stages:
-  - "clone"
-  - "build"
-  - "test"
+  - prepare
+  - test
+
+hooks:
+  on_elected:
+    fail_fast: true
+    steps:
+      check_config:
+        title: Check config
+        image: alpine:3.10
+        commands:
+          - test -n "${CYPRESS_RECORD_KEY_SKILLSHARE}"
+          - test -n "${CYPRESS_RECORD_KEY_SKILLSHARE_WEB}"
+        environment:
+          - CYPRESS_RECORD_KEY_SKILLSHARE=${{CYPRESS_RECORD_KEY_SKILLSHARE}}
+          - CYPRESS_RECORD_KEY_SKILLSHARE_WEB=${{CYPRESS_RECORD_KEY_SKILLSHARE_WEB}}
 
 steps:
   clone:
-    title: "Cloning repository"
-    type: "git-clone"
-    repo: "https://github.com/codefresh-io/cli/"
-    # Clone the master branch. Or, use ${{CF_BRANCH}} to get branch name from trigger
-    # Learn more at https://codefresh.io/docs/docs/codefresh-yaml/variables/
-    revision: "master"
-    stage: "clone"
+    stage: prepare
+    title: Clone
+    type: git-clone
+    repo: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+    revision: ${{CF_REVISION}}
+    git: github
 
-  build:
-    title: "Building Docker image"
-    type: "build"
-    image_name: "codefresh-io/cli"
-    working_directory: "${{clone}}"
-    # Set 'latest' tag on the image. Or, use built-in variables
-    # like ${{CF_BRANCH_TAG_NORMALIZED}} to use the current branch name/tag.
-    tag: "latest"
-    dockerfile: "Dockerfile"
-    stage: "build"
+  install_dependencies:
+    stage: prepare
+    type: parallel
+    title: Install dependencies
+    steps:
+      install_skillshare_dependencies:
+        title: skillshare-web
+        image: cypress/included:9.5.1
+        working_directory: ${{clone}}/skillshare
+        commands:
+          - yarn install
+      install_skillshare_web_dependencies:
+        title: skillshare
+        image: cypress/included:9.5.1
+        working_directory: ${{clone}}/skillshare-web
+        commands:
+          - yarn install
 
-  test:
-    title: "Running test"
-    type: "freestyle" # Run any command
-    image: "ubuntu:latest" # The image in which command will be executed
-    working_directory: "${{clone}}" # Running command where code cloned
+  test_skillshare:
+    stage: test
+    title: Test skillshare
+    image: cypress/included:9.5.1
+    working_directory: ${{clone}}/skillshare
     commands:
-      - "ls"
-    stage: "test"
+      - cypress run --record
+    environment:
+      - CYPRESS_BASE_URL=https://www.skillshare.com
+      - CYPRESS_RECORD_KEY=${{CYPRESS_RECORD_KEY_SKILLSHARE}}
 
+  test_skillshare_web:
+    stage: test
+    title: Test skillshare-web
+    image: cypress/included:9.5.1
+    working_directory: ${{clone}}/skillshare-web
+    commands:
+      - cypress run --record
+    environment:
+      - CYPRESS_BASE_URL=https://www.skillshare.com
+      - CYPRESS_RECORD_KEY=${{CYPRESS_RECORD_KEY_SKILLSHARE_WEB}}
 
