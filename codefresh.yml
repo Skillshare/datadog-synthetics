@@ -14,11 +14,9 @@ hooks:
         commands:
           - test -n "${DATADOG_API_KEY}"
           - test -n "${DATADOG_APP_KEY}"
-          - test -n "${DATADOG_TEST_PUBLIC_ID}"
         environment:
           - DATADOG_API_KEY=${{DATADOG_API_KEY}}
           - DATADOG_APP_KEY=${{DATADOG_APP_KEY}}
-          - DATADOG_TEST_PUBLIC_ID=${{DATADOG_TEST_PUBLIC_ID}}
 
 steps:
   clone:
@@ -43,4 +41,4 @@ steps:
     image: node:15-alpine3.10
     working_directory: ${{clone}}
     commands:
-      - npm run test -- --public-id $DATADOG_TEST_PUBLIC_ID
+      - npm run test --

@@ -4,7 +4,7 @@
   "description": "Test trigger",
   "main": "index.js",
   "scripts": {
-    "test": "datadog-ci synthetics run-tests"
+    "test": "datadog-ci synthetics run-tests -s 'tag:smoke'"
   },
   "repository": {
     "type": "git",
