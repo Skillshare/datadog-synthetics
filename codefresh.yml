@@ -29,18 +29,6 @@ steps:
     revision: ${{CF_REVISION}}
     git: github
 
-  install_dependencies:
-    stage: prepare
-    type: parallel
-    title: Install dependencies
-    steps:
-      install_skillshare_dependencies:
-        title: datadog-synthetics
-        image: datadog-ci/included:1.4.0
-        working_directory: ${{clone}}/skillshare
-        commands:
-          - npm install
-
   test datadog synthetics:
     stage: test
     title: Test Datadog Synthetics
