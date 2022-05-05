@@ -10,7 +10,6 @@ hooks:
     steps:
       check_config:
         title: Check config
-        image: alpine:3.10
         environment:
           - DATADOG_API_KEY=${{DATADOG_API_KEY}}
           - DATADOG_APP_KEY=${{DATADOG_APP_KEY}}
