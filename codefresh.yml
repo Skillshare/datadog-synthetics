@@ -44,6 +44,7 @@ steps:
   test datadog synthetics:
     stage: test
     title: Test Datadog Synthetics
+    image: datadog-ci/included:1.4.0
     working_directory: ${{clone}}/skillshare
     commands:
       - npm install -g @datadog/datadog-ci
