@@ -19,6 +19,7 @@ steps:
   clone:
     stage: prepare
     title: Clone
+    image: node:15-alpine3.10
     type: git-clone
     repo: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
     revision: ${{CF_REVISION}}
