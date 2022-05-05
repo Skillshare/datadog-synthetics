@@ -1,7 +1,6 @@
 
 version: "1.0"
 fail_fast: true
-registry: my-registry
 stages:
   - prepare
   - test
