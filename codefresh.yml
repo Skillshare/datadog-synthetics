@@ -10,6 +10,11 @@ hooks:
     steps:
       check_config:
         title: Check config
+        image: alpine:3.10
+        commands:
+          - test -n "${DATADOG_API_KEY}"
+          - test -n "${DATADOG_APP_KEY}"
+          - test -n "${DATADOG_TEST_PUBLIC_ID}"
         environment:
           - DATADOG_API_KEY=${{DATADOG_API_KEY}}
           - DATADOG_APP_KEY=${{DATADOG_APP_KEY}}
@@ -19,11 +24,22 @@ steps:
   clone:
     stage: prepare
     title: Clone
-    image: node:15-alpine3.10
     type: git-clone
     repo: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
     revision: ${{CF_REVISION}}
     git: github
+
+  install_dependencies:
+    stage: prepare
+    type: parallel
+    title: Install dependencies
+    steps:
+      install_skillshare_dependencies:
+        title: datadog-synthetics
+        image: datadog-ci/included:1.4.0
+        working_directory: ${{clone}}/skillshare
+        commands:
+          - npm install
 
   test datadog synthetics:
     stage: test
