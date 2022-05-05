@@ -29,13 +29,20 @@ steps:
     revision: ${{CF_REVISION}}
     git: github
 
+  install-dependencies:
+    stage: prepare
+    title: Install dependencies
+    image: node:15-alpine3.10
+    working_directory: ${{clone}}
+    commands:
+      - npm install
+
   test datadog synthetics:
     stage: test
     title: Test Datadog Synthetics
     image: node:15-alpine3.10
-    working_directory: ${{clone}}/skillshare
+    working_directory: ${{clone}}
     commands:
-      - npm install -g @datadog/datadog-ci
-      - datadog-ci synthetics run-tests --public-id $DATADOG_TEST_PUBLIC_ID  --apiKey $DATADOG_API_KEY --appKey $DATADOG_APP_KEY
+      - npm run test -- --public-id $DATADOG_TEST_PUBLIC_ID  --apiKey $DATADOG_API_KEY --appKey $DATADOG_APP_KEY
     environment:
       - DATADOG_TEST_PUBLIC_ID=${{DATADOG_TEST_PUBLIC_ID}}

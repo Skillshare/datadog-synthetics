@@ -4,7 +4,7 @@
   "description": "Test trigger",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "datadog-ci synthetics run-tests"
   },
   "repository": {
     "type": "git",
