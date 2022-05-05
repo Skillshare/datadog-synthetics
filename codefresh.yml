@@ -1,4 +1,3 @@
-
 version: "1.0"
 fail_fast: true
 stages:
@@ -12,12 +11,10 @@ hooks:
       check_config:
         title: Check config
         image: alpine:3.10
-        commands:
-          - test -n "${CYPRESS_RECORD_KEY_SKILLSHARE}"
-          - test -n "${CYPRESS_RECORD_KEY_SKILLSHARE_WEB}"
         environment:
-          - CYPRESS_RECORD_KEY_SKILLSHARE=${{CYPRESS_RECORD_KEY_SKILLSHARE}}
-          - CYPRESS_RECORD_KEY_SKILLSHARE_WEB=${{CYPRESS_RECORD_KEY_SKILLSHARE_WEB}}
+          - DATADOG_API_KEY=${{DATADOG_API_KEY}}
+          - DATADOG_APP_KEY=${{DATADOG_APP_KEY}}
+          - DATADOG_TEST_PUBLIC_ID=${{DATADOG_TEST_PUBLIC_ID}}
 
 steps:
   clone:
@@ -28,43 +25,12 @@ steps:
     revision: ${{CF_REVISION}}
     git: github
 
-  install_dependencies:
-    stage: prepare
-    type: parallel
-    title: Install dependencies
-    steps:
-      install_skillshare_dependencies:
-        title: skillshare-web
-        image: cypress/included:9.5.1
-        working_directory: ${{clone}}/skillshare
-        commands:
-          - yarn install
-      install_skillshare_web_dependencies:
-        title: skillshare
-        image: cypress/included:9.5.1
-        working_directory: ${{clone}}/skillshare-web
-        commands:
-          - yarn install
-
-  test_skillshare:
+  test datadog synthetics:
     stage: test
-    title: Test skillshare
-    image: cypress/included:9.5.1
+    title: Test Datadog Synthetics
     working_directory: ${{clone}}/skillshare
     commands:
-      - cypress run --record
+      - npm install -g @datadog/datadog-ci
+      - datadog-ci synthetics run-tests --public-id $DATADOG_TEST_PUBLIC_ID  --apiKey $DATADOG_API_KEY --appKey $DATADOG_APP_KEY
     environment:
-      - CYPRESS_BASE_URL=https://www.skillshare.com
-      - CYPRESS_RECORD_KEY=${{CYPRESS_RECORD_KEY_SKILLSHARE}}
-
-  test_skillshare_web:
-    stage: test
-    title: Test skillshare-web
-    image: cypress/included:9.5.1
-    working_directory: ${{clone}}/skillshare-web
-    commands:
-      - cypress run --record
-    environment:
-      - CYPRESS_BASE_URL=https://www.skillshare.com
-      - CYPRESS_RECORD_KEY=${{CYPRESS_RECORD_KEY_SKILLSHARE_WEB}}
-
+      - DATADOG_TEST_PUBLIC_ID=${{DATADOG_TEST_PUBLIC_ID}}
