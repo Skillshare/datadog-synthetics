@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/Skillshare/datadog-synthetics#readme",
   "dependencies": {
-    "@datadog/datadog-ci": "^1.4.0"
+    "@datadog/datadog-ci": "^2.14.0"
   }
 }
